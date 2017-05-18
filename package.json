@@ -1,0 +1,19 @@
+{
+  "name": "tagedit",
+  "version": "1.5.1",
+  "description": "The Plugin can be used to edit tags from a database the easy way",
+  "main": "js/jquery.tagedit.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appix-CH/Tagedit.git"
+  },
+  "author": "Oliver Albrecht <info@webwork-albrecht.de>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/appix-CH/Tagedit/issues"
+  },
+  "homepage": "https://github.com/appix-CH/Tagedit#readme"
+}
