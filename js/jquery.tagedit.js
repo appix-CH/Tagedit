@@ -55,6 +55,7 @@
 			deletedPostfix: '-d',
 			addedPostfix: '-a',
 			additionalListClass: '',
+			maxTags: false,
 			allowEdit: true,
 			allowDelete: true,
 			allowAdd: true,
@@ -89,6 +90,7 @@
 		}
 
 		// Set the direction of the inputs
+		 var tagNumber = 0;
 		var direction= this.attr('dir');
 		if(direction && direction.length > 0) {
 			options.direction = this.attr('dir');
@@ -111,10 +113,24 @@
 		// init elements
 		inputsToList();
 
+
+		function escapeHtml(text) {
+		 nText = text
+		      .replace('/&/g', "s&amp;")
+		      .replace(/</g, "s&lt;")
+		      .replace(/>/g, "s&gt;")
+		      .replace(/"/g, "s&quot;")
+		      .replace(/'/g, "s&#039;");
+
+		   		return nText;
+		}
+
 		/**
 		* Creates the tageditinput from a list of textinputs
 		*
 		*/
+
+
 		function inputsToList() {
 			var html = '<ul class="tagedit-list '+options.additionalListClass+'">';
 
@@ -124,14 +140,19 @@
 					if(element_name[1].length > 0) {
 						var elementId = typeof element_name[2] != 'undefined'? element_name[2]: '';
 
+						nValue = escapeHtml($(this).val());
+
 						html += '<li class="tagedit-listelement tagedit-listelement-old">';
-						html += '<span dir="'+options.direction+'">' + $(this).val() + '</span>';
-						html += '<input type="hidden" name="'+baseName+'['+elementId+']" value="'+$(this).val()+'" />';
+						html += '<span dir="'+options.direction+'">' + nValue + '</span>';
+						html += '<input type="hidden" name="'+baseName+'['+elementId+']" is it here value="'+nValue+'" />';
 						html += '<a class="tagedit-close" title="'+options.texts.removeLinkTitle+'">x</a>';
 						html += '</li>';
 					}
 				}
+				tagNumber++;
 			});
+
+
 
 			// replace Elements with the list and save the list in the local variable elements
 			elements.last().after(html)
@@ -167,9 +188,9 @@
 							var checkAutocomplete = oldValue == true? false : true;
 							// check if the Value ist new
 							var isNewResult = isNew($(this).val(), checkAutocomplete);
-							if(isNewResult[0] === true || isNewResult[1] != null) {
+							if(isNewResult[0] === true || (isNewResult[0] === false && typeof isNewResult[1] == 'string')) {
 
-								if(oldValue == false && isNewResult[1] != null) {
+								if(oldValue == false && typeof isNewResult[1] == 'string') {
 									oldValue = true;
 									id = isNewResult[1];
 								}
@@ -257,6 +278,7 @@
 					})
 				.end()
 				.click(function(event) {
+
 					switch(event.target.tagName) {
 						case 'A':
 							$(event.target).parent().fadeOut(options.animSpeed, function() {
@@ -288,6 +310,7 @@
 		* return {boolean}
 		*/
 		function doEdit(event) {
+
 			if(options.allowEdit == false) {
 				// Do nothing
 				return;
@@ -403,7 +426,7 @@
 		function isNew(value, checkAutocomplete) {
             checkAutocomplete = typeof checkAutocomplete == 'undefined'? false : checkAutocomplete;
 			var autoCompleteId = null;
-            
+
             var compareValue = options.checkNewEntriesCaseSensitive == true? value : value.toLowerCase();
 
 			var isNew = true;
@@ -440,18 +463,25 @@
 						}
 					});
 				}
-                
+
 				// If there is an entry for that already in the autocomplete, don't use it (Check could be case sensitive or not)
 				for (var i = 0; i < result.length; i++) {
-                    var resultValue = result[i].label? result[i].label : result[i];
-                    var label = options.checkNewEntriesCaseSensitive == true? resultValue : resultValue.toLowerCase();
+                    var label = options.checkNewEntriesCaseSensitive == true? result[i].label : result[i].label.toLowerCase();
 					if (label == compareValue) {
 						isNew = false;
-						autoCompleteId = typeof result[i] == 'string' ? i : result[i].id;
+						autoCompleteId = result[i].id;
 						break;
 					}
 				}
 			}
+
+			//Single M
+
+			if(options.maxTags!=false && options.maxTags<=tagNumber){
+				elements.find(".tagedit-close").trigger("click");
+				isNew=true;
+			}
+
 
 			return new Array(isNew, autoCompleteId);
 		}
